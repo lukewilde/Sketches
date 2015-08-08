@@ -24,7 +24,7 @@ void loop() {
 }
 
 void calibrate() {
-  for (int i = 0; i < escs.length; i = i++) {
+  for (int i = 0; i < escs.length; i++) {
     escs[i].attach(escPins[i]);
   }
 
@@ -48,6 +48,6 @@ void calibrate() {
 
 void writeToEscs(int throttle) {
   for (int i = 0; i < escs.length; i = i++) {
-    Serial.println(myPins[i]);
+    sec[i].write(throttle);
   }
 }
