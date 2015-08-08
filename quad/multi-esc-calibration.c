@@ -9,45 +9,94 @@ int throttlePin = 0;
 
 void setup() {
   Serial.begin(9600);
+
   calibrate();
+
+  Serial.println();
+  Serial.println(" -- Ready for orders! -- ");
 }
 
 void loop() {
   int throttle = analogRead(throttlePin);
   throttle = map(throttle, 0, 1023, 0, 90);
 
+  Serial.println(throttle);
   writeToEscs(throttle);
 
-  Serial.print("chilling at ");
   Serial.println(throttle);
-
 }
 
 void calibrate() {
-  for (int i = 0; i < escs.length; i++) {
+
+  initialise();
+  setMaxPower();
+  setMinPower();
+  chill();
+}
+
+void chill() {
+  Serial.println();
+  Serial.println("  -- Auto chill -- ");
+  Serial.println("420 blaze it?");
+  waitForInput();
+  writeToEscsAndLog(90);
+}
+
+void setMinPower() {
+  Serial.println();
+  Serial.println(" -- Calibrating min power -- ");
+  Serial.println("Ready to min power?");
+
+  waitForInput();
+
+  writeToEscsAndLog(0);
+}
+
+void setMaxPower() {
+  Serial.println();
+  Serial.println(" -- Calibrating max power -- ");
+  Serial.println("Ready to max power?");
+
+  waitForInput();
+
+  writeToEscsAndLog(179);
+}
+
+void waitForInput() {
+  while (!Serial.available());
+  Serial.read();
+}
+
+void initialise() {
+  Serial.println(" -- Initialise -- ");
+  Serial.println("Want to initialise?");
+
+  waitForInput();
+
+  for (int i = 0; i < 4; i++) {
     escs[i].attach(escPins[i]);
   }
 
-  Serial.println("Calibrating max power");
-  writeToEscs(179);
-
-  // Wait for input
-  while (!Serial.available());
-  Serial.read();
-
-  Serial.println("Calibrating min power");
-  writeToEscs(0);
-
-  // Wait for input
-  while (!Serial.available());
-  Serial.read();
-
-  Serial.println("Set chill");
-  writeToEscs(90);
+  Serial.println("Initialised!");
 }
 
 void writeToEscs(int throttle) {
-  for (int i = 0; i < escs.length; i = i++) {
-    sec[i].write(throttle);
+  for (int i = 0; i < 4; i++) {
+    escs[i].write(throttle);
   }
+}
+
+void writeToEscsAndLog(int throttle) {
+
+  Serial.print("Setting escs: ");
+
+  for (int i = 0; i < 4; i++) {
+    // Serial.println(i);
+    Serial.print(", ");
+    Serial.print(i);
+    escs[i].write(throttle);
+  }
+
+  Serial.print(" are set to: ");
+  Serial.println(throttle);
 }
